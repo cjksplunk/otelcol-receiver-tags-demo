@@ -4,14 +4,20 @@ Demonstrates the `tags:` config block on OpenTelemetry Collector receivers,
 implemented in [cjksplunk/opentelemetry-collector@settable-context-via-tags](https://github.com/cjksplunk/opentelemetry-collector/tree/settable-context-via-tags).
 
 The `tags:` block injects arbitrary key/value pairs into the context that
-travels with every telemetry item. A `resourceprocessor` downstream then
-promotes them to resource attributes via `from_context: tags.<key>` — without
-modifying the receiver itself.
+travels with every telemetry item. Downstream processors can then consume those
+values via `from_context: tags.<key>` — without modifying the receiver itself.
 
 ## What's wired up
 
-- `otlp` receiver — accepts traces, metrics, and logs via gRPC `:4317` / HTTP `:4318`
-- `resource` processor — promotes tags from context to resource attributes
+Three `otlp` receiver instances (prod-us-east on `:4317`/`:4318`, staging-eu-west
+on `:4327`/`:4328`, dev-local on `:4337`/`:4338`), each with distinct `tags:` values
+for `connection_name`, `instance`, and `owner`.
+
+- `resource` processor — promotes two tags to resource attributes under new names:
+  `connection_name` → `region`, `instance` → `service.name`
+- `attributes` processor — independently reads the same two tags and writes them
+  as log attributes under different names: `connection_name` → `source.id`,
+  `instance` → `collector.node`
 - `debug` exporter — prints full telemetry detail to stdout
 
 ## Prerequisites
@@ -35,22 +41,22 @@ go run . --config config.yaml
 
 ## Sending test data
 
-With the collector running, use `make` to send synthetic OTLP data:
+With the collector running, use `make` to send synthetic OTLP logs:
 
 ```bash
-make send-traces    # send traces for 5s
-make send-metrics   # send metrics for 5s
-make send-logs      # send logs for 5s
-make send-all       # send all three signals
+make send-logs      # send logs to prod-us-east (:4317) for 5s
+make send-logs-all  # send logs to all three receiver instances
 ```
 
-You should see resource attributes injected by the tags in the debug output:
+You should see attributes injected by the tags in the debug output:
 
 ```
 Resource attributes:
-     -> env: Str(dev)
-     -> team: Str(platform)
-     -> receiver.type: Str(otlp)
+     -> region: Str(prod-us-east)
+     -> service.name: Str(collector-1)
+...
+     -> source.id: Str(prod-us-east)
+     -> collector.node: Str(collector-1)
 ```
 
 ## Dependency pinning

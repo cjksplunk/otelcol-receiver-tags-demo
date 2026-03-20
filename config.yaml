@@ -1,43 +1,74 @@
-# Demo configuration showing the `tags:` block on receivers + a resourceprocessor
-# that promotes those tags to resource attributes.
+# Demo configuration showing the `tags:` block on receivers + two processors
+# that independently consume the same context values.
 #
 # Flow:
 #   1. `tags:` on a receiver injects key/value pairs into context.Context via
-#      client.Info.Metadata under a "tags." prefix (e.g. "tags.env").
-#   2. The `resource` processor reads them out with `from_context: tags.<key>`
-#      and upserts them as resource attributes on every telemetry item.
+#      client.Info.Metadata under a "tags." prefix (e.g. "tags.connection_name").
+#   2. The `resource` processor promotes two tags to resource attributes under
+#      different names: connection_name -> region, instance -> service.name.
+#   3. The `attributes` processor reads the same two tags from context and
+#      writes them under completely different names as log attributes:
+#      connection_name -> source.id, instance -> collector.node.
 #
-# Observe the debug exporter output: each metric/log/span should show env,
-# team, and receiver.type as resource attributes.
+# Observe the debug exporter output: resource attributes show region and
+# service.name; log attributes show source.id and collector.node.
 #
 # To send test data:
-#   Metrics/Logs/Traces via OTLP gRPC: otelcol-contrib or any SDK -> localhost:4317
+#   Logs via OTLP gRPC: telemetrygen or any SDK -> localhost:4317, 4327, 4337
 
 receivers:
-  otlp:
+  otlp/prod-us-east:
     protocols:
       grpc:
         endpoint: "localhost:4317"
       http:
         endpoint: "localhost:4318"
     tags:
-      env: dev
-      team: platform
-      receiver.type: otlp
+      connection_name: prod-us-east
+      instance: collector-1
+      owner: platform
+
+  otlp/staging-eu-west:
+    protocols:
+      grpc:
+        endpoint: "localhost:4327"
+      http:
+        endpoint: "localhost:4328"
+    tags:
+      connection_name: staging-eu-west
+      instance: collector-2
+      owner: backend
+
+  otlp/dev-local:
+    protocols:
+      grpc:
+        endpoint: "localhost:4337"
+      http:
+        endpoint: "localhost:4338"
+    tags:
+      connection_name: dev-local
+      instance: collector-3
+      owner: frontend
 
 
 processors:
   resource:
     attributes:
       - action: upsert
-        key: env
-        from_context: tags.env
+        key: region
+        from_context: tags.connection_name
       - action: upsert
-        key: team
-        from_context: tags.team
+        key: service.name
+        from_context: tags.instance
+
+  attributes:
+    actions:
       - action: upsert
-        key: receiver.type
-        from_context: tags.receiver.type
+        key: source.id
+        from_context: tags.connection_name
+      - action: upsert
+        key: collector.node
+        from_context: tags.instance
 
 exporters:
   debug:
@@ -45,15 +76,7 @@ exporters:
 
 service:
   pipelines:
-    traces:
-      receivers: [otlp]
-      processors: [resource]
-      exporters: [debug]
-    metrics:
-      receivers: [otlp]
-      processors: [resource]
-      exporters: [debug]
     logs:
-      receivers: [otlp]
-      processors: [resource]
+      receivers: [otlp/prod-us-east, otlp/staging-eu-west, otlp/dev-local]
+      processors: [resource, attributes]
       exporters: [debug]

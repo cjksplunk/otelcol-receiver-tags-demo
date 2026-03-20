@@ -1,15 +1,11 @@
-OTLP_ENDPOINT ?= localhost:4317
-DURATION      ?= 5s
+DURATION ?= 5s
 
-.PHONY: send-traces send-metrics send-logs send-all
-
-send-traces:
-	telemetrygen traces --otlp-insecure --otlp-endpoint $(OTLP_ENDPOINT) --duration $(DURATION)
-
-send-metrics:
-	telemetrygen metrics --otlp-insecure --otlp-endpoint $(OTLP_ENDPOINT) --duration $(DURATION)
+.PHONY: send-logs send-logs-all
 
 send-logs:
-	telemetrygen logs --otlp-insecure --otlp-endpoint $(OTLP_ENDPOINT) --duration $(DURATION)
+	telemetrygen logs --otlp-insecure --otlp-endpoint localhost:4317 --duration $(DURATION)
 
-send-all: send-traces send-metrics send-logs
+send-logs-all:
+	telemetrygen logs --otlp-insecure --otlp-endpoint localhost:4317 --duration $(DURATION)
+	telemetrygen logs --otlp-insecure --otlp-endpoint localhost:4327 --duration $(DURATION)
+	telemetrygen logs --otlp-insecure --otlp-endpoint localhost:4337 --duration $(DURATION)

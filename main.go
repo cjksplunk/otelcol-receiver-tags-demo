@@ -17,6 +17,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/attributesprocessor"
 	"github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourceprocessor"
 	"go.opentelemetry.io/collector/component"
 	"go.opentelemetry.io/collector/confmap"
@@ -72,6 +73,7 @@ func components() (otelcol.Factories, error) {
 	}
 
 	f.Processors, err = otelcol.MakeFactoryMap[processor.Factory](
+		attributesprocessor.NewFactory(),
 		resourceprocessor.NewFactory(),
 	)
 	if err != nil {
