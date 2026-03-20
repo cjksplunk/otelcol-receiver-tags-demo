@@ -1,0 +1,47 @@
+# Demo configuration showing the `tags:` block on three different receivers.
+#
+# The `tags:` map is a new top-level key supported by this branch of the
+# OpenTelemetry Collector core. The collector strips it before unmarshalling
+# the receiver's own config, then stamps the key/value pairs as resource
+# attributes on every telemetry item that receiver produces.
+#
+# Observe the debug exporter output: each metric/log/span should show the
+# corresponding resource attributes injected by the tags.
+#
+# To send test data:
+#   Metrics/Logs/Traces via OTLP gRPC: otelcol-contrib or any SDK -> localhost:4317
+#   Metrics via StatsD UDP:  echo "demo.counter:1|c" | nc -u -w1 localhost 8125
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: "localhost:4317"
+      http:
+        endpoint: "localhost:4318"
+    tags:
+      env: dev
+      team: platform
+      receiver.type: otlp
+
+  nop:
+    tags:
+      env: dev
+      team: platform
+      receiver.type: nop
+
+exporters:
+  debug:
+    verbosity: detailed
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [debug]
+    metrics:
+      receivers: [otlp]
+      exporters: [debug]
+    logs:
+      receivers: [otlp, nop]
+      exporters: [debug]
