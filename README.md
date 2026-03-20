@@ -1,11 +1,43 @@
 # otelcol-receiver-tags-demo
 
-Demonstrates the `tags:` config block on OpenTelemetry Collector receivers,
-implemented in [cjksplunk/opentelemetry-collector@settable-context-via-tags](https://github.com/cjksplunk/opentelemetry-collector/tree/settable-context-via-tags).
+## What this proves
 
-The `tags:` block injects arbitrary key/value pairs into the context that
-travels with every telemetry item. Downstream processors can then consume those
-values via `from_context: tags.<key>` — without modifying the receiver itself.
+Today, operators who want to stamp a resource attribute on all telemetry from a
+specific receiver — say, to identify which connection or environment it came from
+— must either fork the receiver or insert a static-value processor that has no
+way of knowing *which* receiver instance produced the data. Neither option scales
+when you have many receiver instances with different identities.
+
+This repo demonstrates a solution that requires **zero changes to any receiver or
+contrib component**: a `tags:` config block added to the collector core that lets
+operators attach arbitrary key/value pairs directly to a receiver's configuration.
+The feature works with every existing receiver, today, without touching contrib.
+
+### How it works
+
+1. **Core change only** — the `tags:` block is parsed by the collector's config
+   unmarshaler ([`configunmarshaler`](https://github.com/cjksplunk/opentelemetry-collector/tree/settable-context-via-tags/otelcol/internal/configunmarshaler))
+   before the receiver factory ever sees the config. The receiver never knows
+   the block existed.
+
+2. **Context injection** — each receiver is wrapped by a thin
+   [`tagsconsumer`](https://github.com/cjksplunk/opentelemetry-collector/tree/settable-context-via-tags/consumer/tagsconsumer)
+   shim. When the receiver calls `ConsumeTraces`/`ConsumeLogs`/`ConsumeMetrics`,
+   the shim calls `client.Info.Metadata` to store the tags under a `tags.` prefix
+   in the request context before passing data downstream. The receiver's own logic
+   is untouched.
+
+3. **Processor consumption** — any processor that already supports `from_context`
+   (e.g. `resourceprocessor`, `attributesprocessor`) can read those values out of
+   the context and write them as resource or data-point attributes under whatever
+   name the operator chooses. No new processor needed.
+
+The result: a single config file can express per-receiver identity without any
+code changes outside collector core.
+
+---
+
+Implemented in [cjksplunk/opentelemetry-collector@settable-context-via-tags](https://github.com/cjksplunk/opentelemetry-collector/tree/settable-context-via-tags).
 
 ## What's wired up
 
