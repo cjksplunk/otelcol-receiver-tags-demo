@@ -13,7 +13,6 @@ require (
 	go.opentelemetry.io/collector/otelcol v0.148.0
 	go.opentelemetry.io/collector/processor v1.54.1-0.20260320051400-372cc483b303
 	go.opentelemetry.io/collector/receiver v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/receiver/nopreceiver v0.148.0
 	go.opentelemetry.io/collector/receiver/otlpreceiver v0.148.0
 	go.opentelemetry.io/collector/service v0.148.0
 )

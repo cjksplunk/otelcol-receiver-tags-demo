@@ -25,11 +25,6 @@ receivers:
       team: platform
       receiver.type: otlp
 
-  nop:
-    tags:
-      env: dev
-      team: platform
-      receiver.type: nop
 
 processors:
   resource:
@@ -59,6 +54,6 @@ service:
       processors: [resource]
       exporters: [debug]
     logs:
-      receivers: [otlp, nop]
+      receivers: [otlp]
       processors: [resource]
       exporters: [debug]

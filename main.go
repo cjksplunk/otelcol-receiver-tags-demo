@@ -7,9 +7,8 @@
 //
 // Receivers wired up:
 //   - otlp  (logs + metrics + traces — OTLP gRPC :4317 / HTTP :4318)
-//   - nop   (drops everything — verifies tags are applied to a second receiver)
 //
-// Both pipelines run through the resource processor then fan into the debug
+// All pipelines run through the resource processor then fan into the debug
 // exporter (verbosity: detailed) so you can see the injected resource
 // attributes printed to stdout.
 package main
@@ -29,7 +28,6 @@ import (
 	"go.opentelemetry.io/collector/processor"
 	"go.opentelemetry.io/collector/receiver"
 	otelconftelemetry "go.opentelemetry.io/collector/service/telemetry/otelconftelemetry"
-	"go.opentelemetry.io/collector/receiver/nopreceiver"
 	"go.opentelemetry.io/collector/receiver/otlpreceiver"
 )
 
@@ -68,7 +66,6 @@ func components() (otelcol.Factories, error) {
 
 	f.Receivers, err = otelcol.MakeFactoryMap[receiver.Factory](
 		otlpreceiver.NewFactory(),
-		nopreceiver.NewFactory(),
 	)
 	if err != nil {
 		return f, err

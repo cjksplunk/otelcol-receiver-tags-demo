@@ -112,8 +112,6 @@ github.com/cjksplunk/opentelemetry-collector/processor/xprocessor v0.148.1-0.202
 github.com/cjksplunk/opentelemetry-collector/processor/xprocessor v0.148.1-0.20260320051400-372cc483b303/go.mod h1:r7ADpSX2nf0rZR9STxh956Qw1740QOWMXLnEM/ZiaF8=
 github.com/cjksplunk/opentelemetry-collector/receiver v1.54.1-0.20260320051400-372cc483b303 h1:gWWCZ/+71WCV3kJrAm92E61JH8kNTRquldxvPUT6D4c=
 github.com/cjksplunk/opentelemetry-collector/receiver v1.54.1-0.20260320051400-372cc483b303/go.mod h1:xFZnvYTBjdi9iS/d/UUXzss4h311mLsZliQFQXk4o/k=
-github.com/cjksplunk/opentelemetry-collector/receiver/nopreceiver v0.148.1-0.20260320051400-372cc483b303 h1:6wJ7dBTrPh3+muVgW6Af9TLEyBS8aten5J+Wfp06uyE=
-github.com/cjksplunk/opentelemetry-collector/receiver/nopreceiver v0.148.1-0.20260320051400-372cc483b303/go.mod h1:LiPr2h56AmTaYsqjm4qMD1cEwjN57b2W3wQpsjwkSsI=
 github.com/cjksplunk/opentelemetry-collector/receiver/otlpreceiver v0.148.1-0.20260320051400-372cc483b303 h1:OB/dwQmWHnnCNBMJG0GSAMsPeyZdsbj4hPYtIv0HArc=
 github.com/cjksplunk/opentelemetry-collector/receiver/otlpreceiver v0.148.1-0.20260320051400-372cc483b303/go.mod h1:cODO2k1QW3phoj6JoZ9uaSRpce+GZfsn6N/h1+c8COg=
 github.com/cjksplunk/opentelemetry-collector/receiver/receivertest v0.148.1-0.20260320051400-372cc483b303 h1:qYCcc1esMhfZ2Jep0ly1QqQgb6B9Rjnp8XaITBXtceM=
