@@ -63,12 +63,15 @@ go install github.com/open-telemetry/opentelemetry-collector-contrib/cmd/telemet
 
 ## Run
 
+The collector core is pinned to a fork that is not in the public Go checksum database,
+so `GONOSUMDB` is required for any `go` command that downloads dependencies.
+
 ```bash
 # Fetch dependencies (first run only)
-go mod tidy
+GONOSUMDB="github.com/cjksplunk/*" go mod tidy
 
 # Run the collector
-go run . --config config.yaml
+GONOSUMDB="github.com/cjksplunk/*" go run . --config config.yaml
 ```
 
 ## Sending test data

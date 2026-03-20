@@ -9,14 +9,14 @@ A minimal custom OpenTelemetry Collector binary that demonstrates the `tags:` co
 ## Commands
 
 ```bash
-# First-time setup
-go mod tidy             # fetch pinned fork dependencies
+# First-time setup (GONOSUMDB required — the fork is not in the public checksum database)
+GONOSUMDB="github.com/cjksplunk/*" go mod tidy
 
 # Run the collector
-go run . --config config.yaml
+GONOSUMDB="github.com/cjksplunk/*" go run . --config config.yaml
 
 # Build
-go build .
+GONOSUMDB="github.com/cjksplunk/*" go build .
 
 # Send test logs (collector must be running)
 make send-logs          # logs to prod-us-east (:4317) for 5s
@@ -49,16 +49,14 @@ The key flow: `tags:` on a receiver → `tagsconsumer` shim injects into `client
 
 ## Dependency pinning
 
-All `go.opentelemetry.io/collector/*` modules and contrib processors are currently `replace`-directed in `go.mod` to **local filesystem paths**:
+All `go.opentelemetry.io/collector/*` modules are `replace`-directed in `go.mod` to tagged versions on the fork `github.com/cjksplunk/opentelemetry-collector` (e.g. `service/v0.148.1`, `consumer/v1.54.1`). Contrib processors (`attributesprocessor`, `resourceprocessor`) have no fork-specific changes and resolve from upstream at `v0.148.0`.
 
-- Core: `/Users/ckalbrener/git/opentelemetry-collector/...`
-- Contrib: `/Users/ckalbrener/git/cjksplunk-opentelemetry-collector-contrib/...`
+Because the fork is not in the public Go checksum database, `GONOSUMDB="github.com/cjksplunk/*"` must be set for any `go` command that downloads dependencies.
 
-This bypasses the module cache entirely and picks up local changes immediately. To switch to a published remote commit instead, replace each local path `replace` with a remote pseudo-version pointing to `github.com/cjksplunk/opentelemetry-collector@<sha>` — generate the pseudo-version with:
-
-```bash
-go list -m -json github.com/cjksplunk/opentelemetry-collector@<sha>
-```
+To update to a newer commit on the branch:
+1. Create new patch tags for all sub-modules at the new HEAD in the fork
+2. Update the version strings in the `replace` block in `go.mod`
+3. Run `GONOSUMDB="github.com/cjksplunk/*" go mod tidy`
 
 ## Adding receivers or exporters
 
