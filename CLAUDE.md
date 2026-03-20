@@ -9,14 +9,15 @@ A minimal custom OpenTelemetry Collector binary that demonstrates the `tags:` co
 ## Commands
 
 ```bash
-# First-time setup (GONOSUMDB required — the fork is not in the public checksum database)
-GONOSUMDB="github.com/cjksplunk/*" go mod tidy
+# First-time setup
+# (GONOSUMDB="github.com/cjksplunk/*" is set automatically via settings.local.json)
+go mod tidy
 
 # Run the collector
-GONOSUMDB="github.com/cjksplunk/*" go run . --config config.yaml
+go run . --config config.yaml
 
 # Build
-GONOSUMDB="github.com/cjksplunk/*" go build .
+go build .
 
 # Send test logs (collector must be running)
 make send-logs          # logs to prod-us-east (:4317) for 5s
@@ -27,12 +28,12 @@ There are no tests in this repository.
 
 ## Running tests in the fork
 
-Each module in the fork (`/Users/ckalbrener/git/opentelemetry-collector`) has its own `go.mod`. Run tests per-module:
+Each module in the fork has its own `go.mod`. Run tests per-module from within the fork directory:
 
 ```bash
-cd /Users/ckalbrener/git/opentelemetry-collector/consumer/tagsconsumer && go test ./... -cover
-cd /Users/ckalbrener/git/opentelemetry-collector/service && go test ./... -cover
-cd /Users/ckalbrener/git/opentelemetry-collector/otelcol && go mod tidy && go test ./... -cover
+cd consumer/tagsconsumer && go test ./... -cover
+cd service && go test ./... -cover
+cd otelcol && go mod tidy && go test ./... -cover
 ```
 
 Note: `otelcol/go.mod` frequently needs `go mod tidy` before tests will run — without it `go test` fails with "updates to go.mod needed".
