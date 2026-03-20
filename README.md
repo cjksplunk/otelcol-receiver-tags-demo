@@ -97,10 +97,19 @@ Resource attributes:
 ## Dependency pinning
 
 `go.mod` uses `replace` directives to pin all `go.opentelemetry.io/collector/*`
-modules to commit `372cc483b303` on the `settable-context-via-tags` branch of
-the fork. Anyone with `go` installed can reproduce this build exactly with
-`go mod tidy && go build .`.
+modules to tagged releases on the `settable-context-via-tags` branch of
+[cjksplunk/opentelemetry-collector](https://github.com/cjksplunk/opentelemetry-collector)
+(e.g. `service/v0.148.1`, `consumer/v1.54.1`). Contrib processors resolve from
+upstream at `v0.148.0` — no fork needed there.
 
-To update to a newer commit on the branch, replace the pseudo-version timestamp
-and SHA in all `replace` lines in `go.mod` with the new one (generate via
-`go list -m -json github.com/cjksplunk/opentelemetry-collector@<sha>`).
+Because the fork is not in the public Go checksum database, `GONOSUMDB` must be
+set when downloading dependencies:
+
+```bash
+GONOSUMDB="github.com/cjksplunk/*" go mod tidy
+```
+
+To update to a newer commit on the branch:
+1. Tag all sub-modules at the new HEAD in the fork (see the tagging script in the repo's git history)
+2. Update the version strings in the `replace` block in `go.mod`
+3. Run `GONOSUMDB="github.com/cjksplunk/*" go mod tidy`
