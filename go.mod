@@ -91,6 +91,7 @@ require (
 	go.opentelemetry.io/collector/consumer/consumererror v0.148.1-0.20260320051400-372cc483b303 // indirect
 	go.opentelemetry.io/collector/consumer/consumererror/xconsumererror v0.148.0 // indirect
 	go.opentelemetry.io/collector/consumer/consumertest v0.148.1-0.20260320051400-372cc483b303 // indirect
+	go.opentelemetry.io/collector/consumer/tagsconsumer v0.148.0 // indirect
 	go.opentelemetry.io/collector/consumer/xconsumer v0.148.1-0.20260320051400-372cc483b303 // indirect
 	go.opentelemetry.io/collector/exporter v1.54.0 // indirect
 	go.opentelemetry.io/collector/exporter/exporterhelper v0.148.0 // indirect
@@ -163,85 +164,85 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
-// Pin all go.opentelemetry.io/collector/* modules to the settable-context-via-tags branch
-// of github.com/cjksplunk/opentelemetry-collector (commit 372cc483b303).
-// This branch adds support for injecting tags into context.Context on receivers via a `tags:` config block.
+// Pin all go.opentelemetry.io/collector/* modules to the local settable-context-via-tags
+// branch of github.com/cjksplunk/opentelemetry-collector. Local paths are used because
+// the branch has not been fully pushed to the remote — the module cache would otherwise
+// serve stale code.
 //
-// Pin contrib processors to the local fork which is built against the same collector commit.
+// Pin contrib processors to the local fork which is built against the same collector source.
 replace (
 	github.com/open-telemetry/opentelemetry-collector-contrib/internal/coreinternal => /Users/ckalbrener/git/cjksplunk-opentelemetry-collector-contrib/internal/coreinternal
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatatest => /Users/ckalbrener/git/cjksplunk-opentelemetry-collector-contrib/pkg/pdatatest
 	github.com/open-telemetry/opentelemetry-collector-contrib/pkg/pdatautil => /Users/ckalbrener/git/cjksplunk-opentelemetry-collector-contrib/pkg/pdatautil
 	github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourceprocessor => /Users/ckalbrener/git/cjksplunk-opentelemetry-collector-contrib/processor/resourceprocessor
-	go.opentelemetry.io/collector => github.com/cjksplunk/opentelemetry-collector v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/client => github.com/cjksplunk/opentelemetry-collector/client v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/component => github.com/cjksplunk/opentelemetry-collector/component v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/component/componentstatus => github.com/cjksplunk/opentelemetry-collector/component/componentstatus v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/component/componenttest => github.com/cjksplunk/opentelemetry-collector/component/componenttest v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/configauth => github.com/cjksplunk/opentelemetry-collector/config/configauth v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/configcompression => github.com/cjksplunk/opentelemetry-collector/config/configcompression v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/configgrpc => github.com/cjksplunk/opentelemetry-collector/config/configgrpc v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/confighttp => github.com/cjksplunk/opentelemetry-collector/config/confighttp v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/configmiddleware => github.com/cjksplunk/opentelemetry-collector/config/configmiddleware v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/confignet => github.com/cjksplunk/opentelemetry-collector/config/confignet v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/configopaque => github.com/cjksplunk/opentelemetry-collector/config/configopaque v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/configoptional => github.com/cjksplunk/opentelemetry-collector/config/configoptional v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/configretry => github.com/cjksplunk/opentelemetry-collector/config/configretry v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/configtelemetry => github.com/cjksplunk/opentelemetry-collector/config/configtelemetry v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/config/configtls => github.com/cjksplunk/opentelemetry-collector/config/configtls v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/confmap => github.com/cjksplunk/opentelemetry-collector/confmap v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/confmap/provider/envprovider => github.com/cjksplunk/opentelemetry-collector/confmap/provider/envprovider v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/confmap/provider/fileprovider => github.com/cjksplunk/opentelemetry-collector/confmap/provider/fileprovider v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/confmap/provider/httpprovider => github.com/cjksplunk/opentelemetry-collector/confmap/provider/httpprovider v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/confmap/provider/httpsprovider => github.com/cjksplunk/opentelemetry-collector/confmap/provider/httpsprovider v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/confmap/provider/yamlprovider => github.com/cjksplunk/opentelemetry-collector/confmap/provider/yamlprovider v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/confmap/xconfmap => github.com/cjksplunk/opentelemetry-collector/confmap/xconfmap v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/connector => github.com/cjksplunk/opentelemetry-collector/connector v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/connector/connectortest => github.com/cjksplunk/opentelemetry-collector/connector/connectortest v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/connector/xconnector => github.com/cjksplunk/opentelemetry-collector/connector/xconnector v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/consumer => github.com/cjksplunk/opentelemetry-collector/consumer v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/consumer/consumererror => github.com/cjksplunk/opentelemetry-collector/consumer/consumererror v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/consumer/consumertest => github.com/cjksplunk/opentelemetry-collector/consumer/consumertest v0.148.1-0.20260320051400-372cc483b303
+	go.opentelemetry.io/collector => /Users/ckalbrener/git/opentelemetry-collector
+	go.opentelemetry.io/collector/client => /Users/ckalbrener/git/opentelemetry-collector/client
+	go.opentelemetry.io/collector/component => /Users/ckalbrener/git/opentelemetry-collector/component
+	go.opentelemetry.io/collector/component/componentstatus => /Users/ckalbrener/git/opentelemetry-collector/component/componentstatus
+	go.opentelemetry.io/collector/component/componenttest => /Users/ckalbrener/git/opentelemetry-collector/component/componenttest
+	go.opentelemetry.io/collector/config/configauth => /Users/ckalbrener/git/opentelemetry-collector/config/configauth
+	go.opentelemetry.io/collector/config/configcompression => /Users/ckalbrener/git/opentelemetry-collector/config/configcompression
+	go.opentelemetry.io/collector/config/configgrpc => /Users/ckalbrener/git/opentelemetry-collector/config/configgrpc
+	go.opentelemetry.io/collector/config/confighttp => /Users/ckalbrener/git/opentelemetry-collector/config/confighttp
+	go.opentelemetry.io/collector/config/configmiddleware => /Users/ckalbrener/git/opentelemetry-collector/config/configmiddleware
+	go.opentelemetry.io/collector/config/confignet => /Users/ckalbrener/git/opentelemetry-collector/config/confignet
+	go.opentelemetry.io/collector/config/configopaque => /Users/ckalbrener/git/opentelemetry-collector/config/configopaque
+	go.opentelemetry.io/collector/config/configoptional => /Users/ckalbrener/git/opentelemetry-collector/config/configoptional
+	go.opentelemetry.io/collector/config/configretry => /Users/ckalbrener/git/opentelemetry-collector/config/configretry
+	go.opentelemetry.io/collector/config/configtelemetry => /Users/ckalbrener/git/opentelemetry-collector/config/configtelemetry
+	go.opentelemetry.io/collector/config/configtls => /Users/ckalbrener/git/opentelemetry-collector/config/configtls
+	go.opentelemetry.io/collector/confmap => /Users/ckalbrener/git/opentelemetry-collector/confmap
+	go.opentelemetry.io/collector/confmap/provider/envprovider => /Users/ckalbrener/git/opentelemetry-collector/confmap/provider/envprovider
+	go.opentelemetry.io/collector/confmap/provider/fileprovider => /Users/ckalbrener/git/opentelemetry-collector/confmap/provider/fileprovider
+	go.opentelemetry.io/collector/confmap/provider/httpprovider => /Users/ckalbrener/git/opentelemetry-collector/confmap/provider/httpprovider
+	go.opentelemetry.io/collector/confmap/provider/httpsprovider => /Users/ckalbrener/git/opentelemetry-collector/confmap/provider/httpsprovider
+	go.opentelemetry.io/collector/confmap/provider/yamlprovider => /Users/ckalbrener/git/opentelemetry-collector/confmap/provider/yamlprovider
+	go.opentelemetry.io/collector/confmap/xconfmap => /Users/ckalbrener/git/opentelemetry-collector/confmap/xconfmap
+	go.opentelemetry.io/collector/connector => /Users/ckalbrener/git/opentelemetry-collector/connector
+	go.opentelemetry.io/collector/connector/connectortest => /Users/ckalbrener/git/opentelemetry-collector/connector/connectortest
+	go.opentelemetry.io/collector/connector/xconnector => /Users/ckalbrener/git/opentelemetry-collector/connector/xconnector
+	go.opentelemetry.io/collector/consumer => /Users/ckalbrener/git/opentelemetry-collector/consumer
+	go.opentelemetry.io/collector/consumer/consumererror => /Users/ckalbrener/git/opentelemetry-collector/consumer/consumererror
+	go.opentelemetry.io/collector/consumer/consumertest => /Users/ckalbrener/git/opentelemetry-collector/consumer/consumertest
 	go.opentelemetry.io/collector/consumer/tagsconsumer => /Users/ckalbrener/git/opentelemetry-collector/consumer/tagsconsumer
-	go.opentelemetry.io/collector/consumer/xconsumer => github.com/cjksplunk/opentelemetry-collector/consumer/xconsumer v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/exporter => github.com/cjksplunk/opentelemetry-collector/exporter v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/exporter/debugexporter => github.com/cjksplunk/opentelemetry-collector/exporter/debugexporter v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/exporter/exporterhelper => github.com/cjksplunk/opentelemetry-collector/exporter/exporterhelper v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/exporter/exportertest => github.com/cjksplunk/opentelemetry-collector/exporter/exportertest v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/exporter/nopexporter => github.com/cjksplunk/opentelemetry-collector/exporter/nopexporter v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/exporter/otlpexporter => github.com/cjksplunk/opentelemetry-collector/exporter/otlpexporter v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/exporter/otlphttpexporter => github.com/cjksplunk/opentelemetry-collector/exporter/otlphttpexporter v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/exporter/xexporter => github.com/cjksplunk/opentelemetry-collector/exporter/xexporter v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/extension => github.com/cjksplunk/opentelemetry-collector/extension v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/extension/extensionauth => github.com/cjksplunk/opentelemetry-collector/extension/extensionauth v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/extension/extensioncapabilities => github.com/cjksplunk/opentelemetry-collector/extension/extensioncapabilities v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/extension/extensionmiddleware => github.com/cjksplunk/opentelemetry-collector/extension/extensionmiddleware v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/extension/extensiontest => github.com/cjksplunk/opentelemetry-collector/extension/extensiontest v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/extension/memorylimiterextension => github.com/cjksplunk/opentelemetry-collector/extension/memorylimiterextension v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/extension/xextension => github.com/cjksplunk/opentelemetry-collector/extension/xextension v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/extension/zpagesextension => github.com/cjksplunk/opentelemetry-collector/extension/zpagesextension v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/featuregate => github.com/cjksplunk/opentelemetry-collector/featuregate v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/filter => github.com/cjksplunk/opentelemetry-collector/filter v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/internal/componentalias => github.com/cjksplunk/opentelemetry-collector/internal/componentalias v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/internal/fanoutconsumer => github.com/cjksplunk/opentelemetry-collector/internal/fanoutconsumer v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/internal/memorylimiter => github.com/cjksplunk/opentelemetry-collector/internal/memorylimiter v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/internal/sharedcomponent => github.com/cjksplunk/opentelemetry-collector/internal/sharedcomponent v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/internal/telemetry => github.com/cjksplunk/opentelemetry-collector/internal/telemetry v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/otelcol => github.com/cjksplunk/opentelemetry-collector/otelcol v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/pdata => github.com/cjksplunk/opentelemetry-collector/pdata v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/pdata/pprofile => github.com/cjksplunk/opentelemetry-collector/pdata/pprofile v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/pdata/testdata => github.com/cjksplunk/opentelemetry-collector/pdata/testdata v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/pipeline => github.com/cjksplunk/opentelemetry-collector/pipeline v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/processor => github.com/cjksplunk/opentelemetry-collector/processor v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/processor/processortest => github.com/cjksplunk/opentelemetry-collector/processor/processortest v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/processor/xprocessor => github.com/cjksplunk/opentelemetry-collector/processor/xprocessor v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/receiver => github.com/cjksplunk/opentelemetry-collector/receiver v1.54.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/receiver/nopreceiver => github.com/cjksplunk/opentelemetry-collector/receiver/nopreceiver v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/receiver/otlpreceiver => github.com/cjksplunk/opentelemetry-collector/receiver/otlpreceiver v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/receiver/receivertest => github.com/cjksplunk/opentelemetry-collector/receiver/receivertest v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/receiver/xreceiver => github.com/cjksplunk/opentelemetry-collector/receiver/xreceiver v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/scraper => github.com/cjksplunk/opentelemetry-collector/scraper v0.148.1-0.20260320051400-372cc483b303
-	go.opentelemetry.io/collector/scraper/scraperhelper => github.com/cjksplunk/opentelemetry-collector/scraper/scraperhelper v0.148.1-0.20260320051400-372cc483b303
-
-	go.opentelemetry.io/collector/service => github.com/cjksplunk/opentelemetry-collector/service v0.148.1-0.20260320051400-372cc483b303
+	go.opentelemetry.io/collector/consumer/xconsumer => /Users/ckalbrener/git/opentelemetry-collector/consumer/xconsumer
+	go.opentelemetry.io/collector/exporter => /Users/ckalbrener/git/opentelemetry-collector/exporter
+	go.opentelemetry.io/collector/exporter/debugexporter => /Users/ckalbrener/git/opentelemetry-collector/exporter/debugexporter
+	go.opentelemetry.io/collector/exporter/exporterhelper => /Users/ckalbrener/git/opentelemetry-collector/exporter/exporterhelper
+	go.opentelemetry.io/collector/exporter/exportertest => /Users/ckalbrener/git/opentelemetry-collector/exporter/exportertest
+	go.opentelemetry.io/collector/exporter/nopexporter => /Users/ckalbrener/git/opentelemetry-collector/exporter/nopexporter
+	go.opentelemetry.io/collector/exporter/otlpexporter => /Users/ckalbrener/git/opentelemetry-collector/exporter/otlpexporter
+	go.opentelemetry.io/collector/exporter/otlphttpexporter => /Users/ckalbrener/git/opentelemetry-collector/exporter/otlphttpexporter
+	go.opentelemetry.io/collector/exporter/xexporter => /Users/ckalbrener/git/opentelemetry-collector/exporter/xexporter
+	go.opentelemetry.io/collector/extension => /Users/ckalbrener/git/opentelemetry-collector/extension
+	go.opentelemetry.io/collector/extension/extensionauth => /Users/ckalbrener/git/opentelemetry-collector/extension/extensionauth
+	go.opentelemetry.io/collector/extension/extensioncapabilities => /Users/ckalbrener/git/opentelemetry-collector/extension/extensioncapabilities
+	go.opentelemetry.io/collector/extension/extensionmiddleware => /Users/ckalbrener/git/opentelemetry-collector/extension/extensionmiddleware
+	go.opentelemetry.io/collector/extension/extensiontest => /Users/ckalbrener/git/opentelemetry-collector/extension/extensiontest
+	go.opentelemetry.io/collector/extension/memorylimiterextension => /Users/ckalbrener/git/opentelemetry-collector/extension/memorylimiterextension
+	go.opentelemetry.io/collector/extension/xextension => /Users/ckalbrener/git/opentelemetry-collector/extension/xextension
+	go.opentelemetry.io/collector/extension/zpagesextension => /Users/ckalbrener/git/opentelemetry-collector/extension/zpagesextension
+	go.opentelemetry.io/collector/featuregate => /Users/ckalbrener/git/opentelemetry-collector/featuregate
+	go.opentelemetry.io/collector/filter => /Users/ckalbrener/git/opentelemetry-collector/filter
+	go.opentelemetry.io/collector/internal/componentalias => /Users/ckalbrener/git/opentelemetry-collector/internal/componentalias
+	go.opentelemetry.io/collector/internal/fanoutconsumer => /Users/ckalbrener/git/opentelemetry-collector/internal/fanoutconsumer
+	go.opentelemetry.io/collector/internal/memorylimiter => /Users/ckalbrener/git/opentelemetry-collector/internal/memorylimiter
+	go.opentelemetry.io/collector/internal/sharedcomponent => /Users/ckalbrener/git/opentelemetry-collector/internal/sharedcomponent
+	go.opentelemetry.io/collector/internal/telemetry => /Users/ckalbrener/git/opentelemetry-collector/internal/telemetry
+	go.opentelemetry.io/collector/otelcol => /Users/ckalbrener/git/opentelemetry-collector/otelcol
+	go.opentelemetry.io/collector/pdata => /Users/ckalbrener/git/opentelemetry-collector/pdata
+	go.opentelemetry.io/collector/pdata/pprofile => /Users/ckalbrener/git/opentelemetry-collector/pdata/pprofile
+	go.opentelemetry.io/collector/pdata/testdata => /Users/ckalbrener/git/opentelemetry-collector/pdata/testdata
+	go.opentelemetry.io/collector/pipeline => /Users/ckalbrener/git/opentelemetry-collector/pipeline
+	go.opentelemetry.io/collector/processor => /Users/ckalbrener/git/opentelemetry-collector/processor
+	go.opentelemetry.io/collector/processor/processortest => /Users/ckalbrener/git/opentelemetry-collector/processor/processortest
+	go.opentelemetry.io/collector/processor/xprocessor => /Users/ckalbrener/git/opentelemetry-collector/processor/xprocessor
+	go.opentelemetry.io/collector/receiver => /Users/ckalbrener/git/opentelemetry-collector/receiver
+	go.opentelemetry.io/collector/receiver/nopreceiver => /Users/ckalbrener/git/opentelemetry-collector/receiver/nopreceiver
+	go.opentelemetry.io/collector/receiver/otlpreceiver => /Users/ckalbrener/git/opentelemetry-collector/receiver/otlpreceiver
+	go.opentelemetry.io/collector/receiver/receivertest => /Users/ckalbrener/git/opentelemetry-collector/receiver/receivertest
+	go.opentelemetry.io/collector/receiver/xreceiver => /Users/ckalbrener/git/opentelemetry-collector/receiver/xreceiver
+	go.opentelemetry.io/collector/scraper => /Users/ckalbrener/git/opentelemetry-collector/scraper
+	go.opentelemetry.io/collector/scraper/scraperhelper => /Users/ckalbrener/git/opentelemetry-collector/scraper/scraperhelper
+	go.opentelemetry.io/collector/service => /Users/ckalbrener/git/opentelemetry-collector/service
 )
