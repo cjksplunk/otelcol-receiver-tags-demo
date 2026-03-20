@@ -1,16 +1,17 @@
-# Demo configuration showing the `tags:` block on three different receivers.
+# Demo configuration showing the `tags:` block on receivers + a resourceprocessor
+# that promotes those tags to resource attributes.
 #
-# The `tags:` map is a new top-level key supported by this branch of the
-# OpenTelemetry Collector core. The collector strips it before unmarshalling
-# the receiver's own config, then stamps the key/value pairs as resource
-# attributes on every telemetry item that receiver produces.
+# Flow:
+#   1. `tags:` on a receiver injects key/value pairs into context.Context via
+#      client.Info.Metadata under a "tags." prefix (e.g. "tags.env").
+#   2. The `resource` processor reads them out with `from_context: tags.<key>`
+#      and upserts them as resource attributes on every telemetry item.
 #
-# Observe the debug exporter output: each metric/log/span should show the
-# corresponding resource attributes injected by the tags.
+# Observe the debug exporter output: each metric/log/span should show env,
+# team, and receiver.type as resource attributes.
 #
 # To send test data:
 #   Metrics/Logs/Traces via OTLP gRPC: otelcol-contrib or any SDK -> localhost:4317
-#   Metrics via StatsD UDP:  echo "demo.counter:1|c" | nc -u -w1 localhost 8125
 
 receivers:
   otlp:
@@ -30,6 +31,19 @@ receivers:
       team: platform
       receiver.type: nop
 
+processors:
+  resource:
+    attributes:
+      - action: upsert
+        key: env
+        from_context: tags.env
+      - action: upsert
+        key: team
+        from_context: tags.team
+      - action: upsert
+        key: receiver.type
+        from_context: tags.receiver.type
+
 exporters:
   debug:
     verbosity: detailed
@@ -38,10 +52,13 @@ service:
   pipelines:
     traces:
       receivers: [otlp]
+      processors: [resource]
       exporters: [debug]
     metrics:
       receivers: [otlp]
+      processors: [resource]
       exporters: [debug]
     logs:
       receivers: [otlp, nop]
+      processors: [resource]
       exporters: [debug]
