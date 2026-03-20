@@ -25,6 +25,18 @@ make send-logs-all      # logs to all three receiver instances
 
 There are no tests in this repository.
 
+## Running tests in the fork
+
+Each module in the fork (`/Users/ckalbrener/git/opentelemetry-collector`) has its own `go.mod`. Run tests per-module:
+
+```bash
+cd /Users/ckalbrener/git/opentelemetry-collector/consumer/tagsconsumer && go test ./... -cover
+cd /Users/ckalbrener/git/opentelemetry-collector/service && go test ./... -cover
+cd /Users/ckalbrener/git/opentelemetry-collector/otelcol && go mod tidy && go test ./... -cover
+```
+
+Note: `otelcol/go.mod` frequently needs `go mod tidy` before tests will run — without it `go test` fails with "updates to go.mod needed".
+
 ## Architecture
 
 The entire program is `main.go`. It follows the standard custom collector pattern:
