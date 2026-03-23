@@ -61,6 +61,6 @@ To update to a newer commit on the branch:
 
 ## Adding receivers or exporters
 
-1. Add the factory package to `go.mod`. If it's a core component, add a local-path `replace` directive pointing into `/Users/ckalbrener/git/opentelemetry-collector`. If it's a contrib component, point to `/Users/ckalbrener/git/cjksplunk-opentelemetry-collector-contrib`.
+1. Add the factory package to `go.mod`. For fork modules, add a `replace` directive to the appropriate tagged version on `github.com/cjksplunk/opentelemetry-collector` (e.g. `go.opentelemetry.io/collector/consumer => github.com/cjksplunk/opentelemetry-collector/consumer v1.54.1`). For unmodified contrib components, use upstream `v0.148.0`.
 2. Register the factory in `components()` inside `main.go`.
 3. Add the receiver/exporter config (including a `tags:` block if desired) to `config.yaml` and wire it into a pipeline under `service.pipelines`.

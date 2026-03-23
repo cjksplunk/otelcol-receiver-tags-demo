@@ -116,4 +116,4 @@ To update to a newer commit on the branch:
 
 ## Presentation
 
-An overview of the design and implementation is in [`docs/receiver-tags-overview.html`](docs/receiver-tags-overview.html) — open it in a browser and navigate with ↑↓ arrow keys.
+An overview of the design and implementation is in [`docs/receiver-tags-overview.html`](https://cjksplunk.github.io/otelcol-receiver-tags-demo/receiver-tags-overview.html) — open it in a browser and navigate with ↑↓ arrow keys.
