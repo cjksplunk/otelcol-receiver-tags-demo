@@ -113,3 +113,7 @@ To update to a newer commit on the branch:
 1. Tag all sub-modules at the new HEAD in the fork (see the tagging script in the repo's git history)
 2. Update the version strings in the `replace` block in `go.mod`
 3. Run `GONOSUMDB="github.com/cjksplunk/*" go mod tidy`
+
+## Presentation
+
+An overview of the design and implementation is in [`docs/receiver-tags-overview.html`](docs/receiver-tags-overview.html) — open it in a browser and navigate with ↑↓ arrow keys.

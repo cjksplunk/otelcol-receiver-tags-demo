@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OTel Receiver Tags: Context Injection</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Clash+Display:wght@400;600;700&family=Satoshi:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =========================================== MANDATORY BASE =========================================== */
+html, body { height: 100%; overflow-x: hidden; margin: 0; padding: 0; }
+html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+.slide {
+  width: 100vw; height: 100vh; height: 100dvh;
+  overflow: hidden; scroll-snap-align: start;
+  display: flex; flex-direction: column; position: relative;
+}
+.slide-content {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center; max-height: 100%; overflow: hidden;
+  padding: var(--slide-padding);
+}
+:root {
+  --title-size: clamp(1.5rem, 5vw, 4rem);
+  --h2-size: clamp(1.25rem, 3.5vw, 2.5rem);
+  --h3-size: clamp(1rem, 2.5vw, 1.75rem);
+  --body-size: clamp(0.75rem, 1.5vw, 1.125rem);
+  --small-size: clamp(0.65rem, 1vw, 0.875rem);
+  --slide-padding: clamp(1rem, 4vw, 4rem);
+  --content-gap: clamp(0.5rem, 2vw, 2rem);
+  --element-gap: clamp(0.25rem, 1vw, 1rem);
+  /* Neon Cyber palette */
+  --bg: #050a14;
+  --bg2: #0a1628;
+  --cyan: #00e5ff;
+  --magenta: #ff2d78;
+  --white: #f0f6ff;
+  --muted: #6b8caa;
+  --card-bg: rgba(0,229,255,0.04);
+  --card-border: rgba(0,229,255,0.18);
+  --grid-line: rgba(0,229,255,0.06);
+}
+@media (max-height: 700px) {
+  :root { --slide-padding: clamp(0.75rem,3vw,2rem); --content-gap: clamp(0.4rem,1.5vw,1rem); --title-size: clamp(1.25rem,4.5vw,2.5rem); --h2-size: clamp(1rem,3vw,1.75rem); }
+}
+@media (max-height: 600px) {
+  :root { --slide-padding: clamp(0.5rem,2.5vw,1.5rem); --content-gap: clamp(0.3rem,1vw,0.75rem); --title-size: clamp(1.1rem,4vw,2rem); --body-size: clamp(0.7rem,1.2vw,0.95rem); }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.2ms !important; }
+  html { scroll-behavior: auto; }
+}
+
+/* =========================================== GLOBAL =========================================== */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Satoshi', sans-serif;
+}
+
+/* grid background */
+.slide::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 60px 60px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.slide > * { position: relative; z-index: 1; }
+
+/* glow orbs */
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* progress bar */
+#progress {
+  position: fixed; top: 0; left: 0;
+  height: 2px; background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  transition: width 0.3s ease;
+  z-index: 100;
+}
+
+/* nav dots */
+#nav-dots {
+  position: fixed; right: clamp(0.75rem, 2vw, 1.5rem); top: 50%;
+  transform: translateY(-50%);
+  display: flex; flex-direction: column; gap: 8px;
+  z-index: 100;
+}
+.dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--muted); cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.dot.active {
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+}
+
+/* keyboard hint */
+.kbd-hint {
+  position: fixed; bottom: clamp(0.75rem, 2vw, 1.5rem); right: clamp(0.75rem, 2vw, 1.5rem);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--small-size); color: var(--muted);
+  z-index: 100;
+}
+
+/* slide number */
+.slide-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--small-size);
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  margin-bottom: var(--element-gap);
+}
+
+/* headings */
+h1 { font-family: 'Clash Display', sans-serif; font-size: var(--title-size); font-weight: 700; line-height: 1.1; margin: 0 0 var(--element-gap); }
+h2 { font-family: 'Clash Display', sans-serif; font-size: var(--h2-size); font-weight: 600; line-height: 1.2; margin: 0 0 var(--content-gap); }
+h3 { font-size: var(--h3-size); font-weight: 600; margin: 0 0 var(--element-gap); }
+p, li { font-size: var(--body-size); line-height: 1.6; margin: 0; }
+
+/* cyan accent */
+.cyan { color: var(--cyan); }
+.magenta { color: var(--magenta); }
+
+/* tag pill */
+.tag {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--small-size);
+  padding: 0.2em 0.6em;
+  border-radius: 4px;
+  background: rgba(0,229,255,0.1);
+  border: 1px solid var(--card-border);
+  color: var(--cyan);
+}
+
+/* card */
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 8px;
+  padding: clamp(0.75rem, 1.5vw, 1.25rem);
+}
+
+/* code block */
+.code-block {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.6rem, 1.1vw, 0.85rem);
+  background: rgba(0,0,0,0.5);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: clamp(0.5rem, 1vw, 1rem);
+  overflow: hidden;
+  line-height: 1.6;
+  white-space: pre;
+}
+.code-comment { color: var(--muted); }
+.code-key { color: var(--cyan); }
+.code-val { color: #a8ff78; }
+.code-type { color: #ffcc02; }
+
+/* bullet list */
+ul.bullets { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: var(--element-gap); }
+ul.bullets li::before { content: '▸ '; color: var(--cyan); }
+
+/* two column layout */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: var(--content-gap); align-items: start; }
+@media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+/* pipeline diagram */
+.pipeline {
+  display: flex; align-items: center; gap: 0;
+  justify-content: center; flex-wrap: nowrap;
+}
+.pipe-box {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 6px;
+  padding: clamp(0.4rem, 0.8vw, 0.75rem) clamp(0.6rem, 1.2vw, 1rem);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.55rem, 0.9vw, 0.8rem);
+  text-align: center;
+  min-width: clamp(60px, 8vw, 110px);
+  position: relative;
+}
+.pipe-box.highlight { border-color: var(--cyan); box-shadow: 0 0 12px rgba(0,229,255,0.3); }
+.pipe-box.changed { border-color: var(--magenta); box-shadow: 0 0 12px rgba(255,45,120,0.3); }
+.pipe-arrow {
+  color: var(--muted);
+  font-size: clamp(0.8rem, 1.5vw, 1.2rem);
+  padding: 0 clamp(2px,0.3vw,6px);
+  flex-shrink: 0;
+}
+.pipe-label {
+  font-size: clamp(0.45rem, 0.7vw, 0.6rem);
+  color: var(--muted);
+  margin-top: 0.3em;
+}
+
+/* glow text */
+.glow { text-shadow: 0 0 20px var(--cyan), 0 0 40px rgba(0,229,255,0.4); }
+
+/* reveal animation */
+.reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.5s ease, transform 0.5s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+.reveal-delay-5 { transition-delay: 0.5s; }
+</style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="nav-dots"></div>
+<div class="kbd-hint">↑↓ / scroll to navigate</div>
+
+
+<!-- ===== SLIDE 1: TITLE ===== -->
+<section class="slide" id="slide-1">
+  <div class="orb" style="width:400px;height:400px;background:rgba(0,229,255,0.08);top:-100px;right:-100px;"></div>
+  <div class="orb" style="width:300px;height:300px;background:rgba(255,45,120,0.06);bottom:-50px;left:-80px;"></div>
+  <div class="slide-content" style="align-items:flex-start;justify-content:center;">
+    <div class="reveal">
+      <span class="tag">DBMON-1593 · Option B</span>
+    </div>
+    <h1 class="reveal reveal-delay-1" style="margin-top:var(--content-gap);">
+      Receiver <span class="cyan glow">Tags</span><br>via Context
+    </h1>
+    <p class="reveal reveal-delay-2" style="color:var(--muted);max-width:600px;margin-top:var(--element-gap);">
+      How we inject pipeline metadata into <code style="font-family:'JetBrains Mono',monospace;color:var(--cyan);">context.Context</code> at the receiver layer — without touching pdata — and make it available to downstream processors.
+    </p>
+    <div class="reveal reveal-delay-3" style="display:flex;gap:var(--element-gap);margin-top:var(--content-gap);flex-wrap:wrap;">
+      <span class="tag">opentelemetry-collector</span>
+      <span class="tag">consumer/tagsconsumer</span>
+      <span class="tag">client.Info.Metadata</span>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 2: PROBLEM ===== -->
+<section class="slide" id="slide-2">
+  <div class="orb" style="width:350px;height:350px;background:rgba(255,45,120,0.07);top:10%;left:60%;"></div>
+  <div class="slide-content">
+    <div class="slide-num reveal">01 · PROBLEM</div>
+    <h2 class="reveal reveal-delay-1">The Gap</h2>
+    <div class="two-col">
+      <div>
+        <ul class="bullets reveal reveal-delay-2">
+          <li>Receivers have no standard way to attach <em>pipeline-level</em> metadata to the telemetry they produce</li>
+          <li>Processors like <code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;color:var(--cyan);">resourceprocessor</code> can only read resource attributes — they cannot read receiver config</li>
+          <li>Users want to tag data at ingest: <code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;color:var(--cyan);">env=prod</code>, <code style="font-family:'JetBrains Mono',monospace;font-size:0.9em;color:var(--cyan);">team=platform</code></li>
+          <li>Writing to pdata inside the receiver would mutate shared data — unsafe in fan-out pipelines</li>
+        </ul>
+      </div>
+      <div class="card reveal reveal-delay-3">
+        <div class="code-block"><span class="code-comment"># What users want to write:</span>
+<span class="code-key">receivers</span>:
+  <span class="code-key">otlp/prod</span>:
+    <span class="code-key">tags</span>:
+      <span class="code-key">env</span>: <span class="code-val">prod</span>
+      <span class="code-key">team</span>: <span class="code-val">platform</span>
+
+<span class="code-comment"># And have a processor pick it up:</span>
+<span class="code-key">processors</span>:
+  <span class="code-key">resource/add-tags</span>:
+    <span class="code-key">attributes</span>:
+      - <span class="code-key">key</span>: <span class="code-val">deployment.env</span>
+        <span class="code-key">from_context</span>: <span class="code-val">metadata.tags.env</span>
+        <span class="code-key">action</span>: <span class="code-val">upsert</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 3: SOLUTION OVERVIEW ===== -->
+<section class="slide" id="slide-3">
+  <div class="orb" style="width:300px;height:300px;background:rgba(0,229,255,0.07);bottom:5%;right:5%;"></div>
+  <div class="slide-content">
+    <div class="slide-num reveal">02 · SOLUTION OVERVIEW</div>
+    <h2 class="reveal reveal-delay-1">Context-First Injection</h2>
+    <p class="reveal reveal-delay-2" style="color:var(--muted);margin-bottom:var(--content-gap);">
+      Tags travel on <code style="font-family:'JetBrains Mono',monospace;color:var(--cyan);">context.Context</code> — pdata is never touched.
+    </p>
+    <div class="reveal reveal-delay-3" style="margin-bottom:var(--content-gap);">
+      <div class="pipeline">
+        <div class="pipe-box changed">
+          <div>Receiver</div>
+          <div class="pipe-label">config parsed</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box changed">
+          <div>tagsconsumer</div>
+          <div class="pipe-label">tags → ctx</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box highlight">
+          <div>Processor</div>
+          <div class="pipe-label">reads ctx</div>
+        </div>
+        <div class="pipe-arrow">→</div>
+        <div class="pipe-box">
+          <div>Exporter</div>
+          <div class="pipe-label">sees attrs</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:0.5em;font-size:var(--small-size);color:var(--magenta);">
+        ▲ changed components
+      </div>
+    </div>
+    <div class="two-col reveal reveal-delay-4">
+      <div class="card">
+        <div style="color:var(--cyan);font-weight:600;margin-bottom:0.4em;font-size:var(--body-size);">Two context slots</div>
+        <ul class="bullets" style="font-size:var(--small-size);">
+          <li><code style="font-family:'JetBrains Mono',monospace;">tagsKey{}</code> — clean internal API</li>
+          <li><code style="font-family:'JetBrains Mono',monospace;">client.Info.Metadata</code> — processor compat</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div style="color:var(--cyan);font-weight:600;margin-bottom:0.4em;font-size:var(--body-size);">Zero overhead fast path</div>
+        <ul class="bullets" style="font-size:var(--small-size);">
+          <li>No tags → consumer unwrapped entirely</li>
+          <li>pdata never mutated — MutatesData: false</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== SLIDE 4: COMPONENTS CHANGED ===== -->
+<section class="slide" id="slide-4">
+  <div class="orb" style="width:320px;height:320px;background:rgba(0,229,255,0.06);top:10%;left:-60px;"></div>
+  <div class="slide-content">
+    <div class="slide-num reveal">03 · COMPONENTS CHANGED</div>
+    <h2 class="reveal reveal-delay-1">What We Modified</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:var(--element-gap);" class="reveal reveal-delay-2">
+      <div class="card" style="border-color:rgba(255,45,120,0.4);">
+        <div style="color:var(--magenta);font-family:'JetBrains Mono',monospace;font-size:var(--small-size);margin-bottom:0.4em;">NEW</div>
+        <div style="font-weight:600;font-size:var(--body-size);margin-bottom:0.4em;">consumer/tagsconsumer/</div>
+        <ul class="bullets" style="font-size:var(--small-size);">
+          <li>context.go</li>
+          <li>logs/metrics/traces.go</li>
+          <li>tagsconsumer_test.go</li>
+          <li>go.mod</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:rgba(0,229,255,0.35);">
+        <div style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:var(--small-size);margin-bottom:0.4em;">MODIFIED</div>
+        <div style="font-weight:600;font-size:var(--body-size);margin-bottom:0.4em;">otelcol/</div>
+        <ul class="bullets" style="font-size:var(--small-size);">
+          <li>configunmarshaler/configs.go</li>
+          <li>unmarshaler.go</li>
+          <li>config.go</li>
+          <li>configprovider.go</li>
+          <li>collector.go</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:rgba(0,229,255,0.35);">
+        <div style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:var(--small-size);margin-bottom:0.4em;">MODIFIED</div>
+        <div style="font-weight:600;font-size:var(--body-size);margin-bottom:0.4em;">service/</div>
+        <ul class="bullets" style="font-size:var(--small-size);">
+          <li>service.go (Settings)</li>
+          <li>internal/builders/receiver.go</li>
+          <li>go.mod (replace directives)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card reveal reveal-delay-3" style="margin-top:var(--element-gap);display:flex;gap:var(--content-gap);align-items:center;flex-wrap:wrap;">
+      <div style="font-size:var(--small-size);color:var(--muted);">Data flow through the stack:</div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:var(--small-size);display:flex;align-items:center;gap:4px;flex-wrap:wrap;">
+        <span style="color:var(--white);">YAML tags:</span>
+        <span class="pipe-arrow" style="font-size:0.9em;">→</span>
+        <span style="color:var(--cyan);">configunmarshaler</span>
+        <span class="pipe-arrow" style="font-size:0.9em;">→</span>
+        <span style="color:var(--cyan);">Config.ReceiverTags</span>
+        <span class="pipe-arrow" style="font-size:0.9em;">→</span>
+        <span style="color:var(--cyan);">service.Settings</span>
+        <span class="pipe-arrow" style="font-size:0.9em;">→</span>
+        <span style="color:var(--cyan);">ReceiverBuilder</span>
+        <span class="pipe-arrow" style="font-size:0.9em;">→</span>
+        <span style="color:var(--magenta);">tagsconsumer wrap</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 5: TAGSCONSUMER INTERNALS ===== -->
+<section class="slide" id="slide-5">
+  <div class="orb" style="width:280px;height:280px;background:rgba(255,45,120,0.07);bottom:10%;right:5%;"></div>
+  <div class="slide-content">
+    <div class="slide-num reveal">04 · NEW PACKAGE</div>
+    <h2 class="reveal reveal-delay-1">consumer/tagsconsumer</h2>
+    <div class="two-col reveal reveal-delay-2">
+      <div>
+        <div class="code-block"><span class="code-comment">// context.go — dual injection</span>
+<span class="code-type">func</span> <span class="code-key">ContextWithTags</span>(
+  ctx context.Context,
+  tags map[string]string,
+) context.Context {
+
+  <span class="code-comment">// 1. custom key for clean internal API</span>
+  ctx = context.WithValue(ctx,
+    tagsKey{}, tags)
+
+  <span class="code-comment">// 2. merge into client.Info.Metadata</span>
+  <span class="code-comment">//    prefix "tags." avoids collisions</span>
+  ci := client.FromContext(ctx)
+  merged := make(map[string][]string)
+  <span class="code-key">for</span> k := range ci.Metadata.Keys() {
+    merged[k] = ci.Metadata.Get(k)
+  }
+  <span class="code-key">for</span> k, v := range tags {
+    merged[<span class="code-val">"tags."</span>+k] = []string{v}
+  }
+  ci.Metadata = client.NewMetadata(merged)
+  <span class="code-key">return</span> client.NewContext(ctx, ci)
+}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--element-gap);">
+        <div class="card">
+          <div style="color:var(--cyan);font-weight:600;font-size:var(--body-size);margin-bottom:0.4em;">Wrapper pattern</div>
+          <ul class="bullets" style="font-size:var(--small-size);">
+            <li>Implements <code style="font-family:'JetBrains Mono',monospace;">consumer.Logs/Metrics/Traces</code></li>
+            <li>Calls <code style="font-family:'JetBrains Mono',monospace;">ContextWithTags</code> then delegates to next</li>
+            <li><code style="font-family:'JetBrains Mono',monospace;">Capabilities()</code> delegates — no MutatesData claim</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div style="color:var(--magenta);font-weight:600;font-size:var(--body-size);margin-bottom:0.4em;">Fast path</div>
+          <div class="code-block" style="font-size:clamp(0.55rem,0.9vw,0.75rem);"><span class="code-key">if</span> len(tags) == 0 {
+  <span class="code-key">return</span> next <span class="code-comment">// zero overhead</span>
+}</div>
+          <p style="font-size:var(--small-size);color:var(--muted);margin-top:0.4em;">Receivers with no tags skip the wrapper entirely</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 6: CONFIG UNMARSHALING ===== -->
+<section class="slide" id="slide-6">
+  <div class="orb" style="width:300px;height:300px;background:rgba(0,229,255,0.06);top:5%;right:10%;"></div>
+  <div class="slide-content">
+    <div class="slide-num reveal">05 · CONFIG UNMARSHALING</div>
+    <h2 class="reveal reveal-delay-1">Stripping <span class="cyan">tags:</span> Before Factory Sees It</h2>
+    <p class="reveal reveal-delay-2" style="color:var(--muted);margin-bottom:var(--element-gap);">
+      <code style="font-family:'JetBrains Mono',monospace;color:var(--white);">confmap</code> uses <code style="font-family:'JetBrains Mono',monospace;color:var(--cyan);">ErrorUnused: true</code> — an unknown key like <code style="font-family:'JetBrains Mono',monospace;color:var(--magenta);">tags:</code> causes a fatal error unless we strip it first.
+    </p>
+    <div class="two-col reveal reveal-delay-3">
+      <div class="code-block"><span class="code-comment">// configs.go — NewReceiverConfigs sets</span>
+<span class="code-comment">// extractTags: true (receivers only)</span>
+
+<span class="code-key">for</span> id, sub := range rawCfgs {
+  rawMap := sub.ToStringMap()
+
+  <span class="code-comment">// pull tags out before unmarshal</span>
+  <span class="code-key">if</span> c.extractTags {
+    <span class="code-key">if</span> t, ok := rawMap[<span class="code-val">"tags"</span>]; ok {
+      c.tags[id] = coerceToStringMap(t)
+      delete(rawMap, <span class="code-val">"tags"</span>)
+    }
+  }
+
+  filtered := confmap.NewFromStringMap(rawMap)
+  <span class="code-comment">// now safe to unmarshal into factory cfg</span>
+  factory.UnmarshalConfig(filtered, &cfg)
+}</div>
+      <div style="display:flex;flex-direction:column;gap:var(--element-gap);">
+        <div class="card">
+          <div style="color:var(--cyan);font-weight:600;font-size:var(--body-size);margin-bottom:0.4em;">Key invariant</div>
+          <ul class="bullets" style="font-size:var(--small-size);">
+            <li><code style="font-family:'JetBrains Mono',monospace;">NewReceiverConfigs</code> → extractTags ON</li>
+            <li><code style="font-family:'JetBrains Mono',monospace;">NewConfigs</code> → extractTags OFF</li>
+            <li>Processors/exporters still error on unknown <code style="font-family:'JetBrains Mono',monospace;">tags:</code></li>
+          </ul>
+        </div>
+        <div class="card">
+          <div style="color:var(--magenta);font-weight:600;font-size:var(--body-size);margin-bottom:0.4em;">Non-map value → hard error</div>
+          <div style="font-size:var(--small-size);color:var(--muted);">
+            <code style="font-family:'JetBrains Mono',monospace;color:var(--white);">tags: "string"</code> returns:<br>
+            <em>"tags" must be a map of string keys to string values</em>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ===== SLIDE 7: PROCESSOR COMPATIBILITY ===== -->
+<section class="slide" id="slide-7">
+  <div class="orb" style="width:350px;height:350px;background:rgba(0,229,255,0.06);bottom:0;left:-80px;"></div>
+  <div class="slide-content">
+    <div class="slide-num reveal">06 · PROCESSOR COMPATIBILITY</div>
+    <h2 class="reveal reveal-delay-1">Reading Tags Downstream</h2>
+    <p class="reveal reveal-delay-2" style="color:var(--muted);margin-bottom:var(--element-gap);">
+      <code style="font-family:'JetBrains Mono',monospace;color:var(--cyan);">from_context:</code> in <code style="font-family:'JetBrains Mono',monospace;color:var(--white);">attributesprocessor</code> / <code style="font-family:'JetBrains Mono',monospace;color:var(--white);">resourceprocessor</code> reads only from <code style="font-family:'JetBrains Mono',monospace;color:var(--cyan);">client.Info</code>.
+    </p>
+    <div class="two-col reveal reveal-delay-3">
+      <div>
+        <div class="code-block"><span class="code-comment"># Works today — no processor changes:</span>
+<span class="code-key">processors</span>:
+  <span class="code-key">resource/tags</span>:
+    <span class="code-key">attributes</span>:
+      - <span class="code-key">key</span>: <span class="code-val">deployment.environment</span>
+        <span class="code-key">from_context</span>: <span class="code-val">metadata.tags.env</span>
+        <span class="code-key">action</span>: <span class="code-val">upsert</span>
+      - <span class="code-key">key</span>: <span class="code-val">team</span>
+        <span class="code-key">from_context</span>: <span class="code-val">metadata.tags.team</span>
+        <span class="code-key">action</span>: <span class="code-val">upsert</span></div>
+        <div class="card" style="margin-top:var(--element-gap);">
+          <div style="font-size:var(--small-size);color:var(--muted);">
+            <code style="font-family:'JetBrains Mono',monospace;color:var(--cyan);">attraction.go:getAttributeValueFromContext</code> looks up <code style="font-family:'JetBrains Mono',monospace;color:var(--white);">metadata.*</code> via <code style="font-family:'JetBrains Mono',monospace;color:var(--cyan);">ci.Metadata.Get(key)</code>. Our <code style="font-family:'JetBrains Mono',monospace;color:var(--magenta);">tags.*</code> keys land there automatically.
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:var(--element-gap);">
+        <div class="card">
+          <div style="color:var(--cyan);font-weight:600;font-size:var(--body-size);margin-bottom:0.4em;">Why <code style="font-family:'JetBrains Mono',monospace;">tags.</code> prefix?</div>
+          <ul class="bullets" style="font-size:var(--small-size);">
+            <li>HTTP headers / gRPC metadata share the same <code style="font-family:'JetBrains Mono',monospace;">Metadata</code> map</li>
+            <li>Prefix isolates our keys from transport metadata</li>
+            <li>A tag named <code style="font-family:'JetBrains Mono',monospace;">host</code> → stored as <code style="font-family:'JetBrains Mono',monospace;">tags.host</code></li>
+            <li>No risk of clobbering existing processor reads</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div style="color:var(--white);font-weight:600;font-size:var(--body-size);margin-bottom:0.4em;">Internal API still clean</div>
+          <ul class="bullets" style="font-size:var(--small-size);">
+            <li><code style="font-family:'JetBrains Mono',monospace;">tagsconsumer.FromContext(ctx)</code> reads from <code style="font-family:'JetBrains Mono',monospace;">tagsKey{}</code></li>
+            <li>No string prefix parsing needed</li>
+            <li>Type-safe <code style="font-family:'JetBrains Mono',monospace;">map[string]string</code></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 8: FUTURE PATH ===== -->
+<section class="slide" id="slide-8">
+  <div class="orb" style="width:300px;height:300px;background:rgba(255,45,120,0.08);top:10%;right:5%;"></div>
+  <div class="slide-content">
+    <div class="slide-num reveal">07 · FUTURE PATH</div>
+    <h2 class="reveal reveal-delay-1">Preferred Long-Term Approach</h2>
+    <p class="reveal reveal-delay-2" style="color:var(--muted);margin-bottom:var(--content-gap);">
+      The <code style="font-family:'JetBrains Mono',monospace;color:var(--white);">metadata.tags.*</code> indirection is a compatibility bridge. The cleaner end state requires one contrib change.
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--element-gap);" class="reveal reveal-delay-3">
+      <div class="card" style="border-color:rgba(255,45,120,0.3);">
+        <div style="color:var(--magenta);font-weight:600;font-size:var(--body-size);margin-bottom:0.5em;">Today (bridge)</div>
+        <div class="code-block" style="font-size:clamp(0.55rem,0.85vw,0.75rem);"><span class="code-key">from_context</span>: <span class="code-val">metadata.tags.env</span>
+
+<span class="code-comment"># Reads: ci.Metadata.Get("tags.env")</span>
+<span class="code-comment"># Works with zero contrib changes</span>
+<span class="code-comment"># But exposes metadata. indirection</span></div>
+      </div>
+      <div class="card" style="border-color:rgba(0,229,255,0.4);">
+        <div style="color:var(--cyan);font-weight:600;font-size:var(--body-size);margin-bottom:0.5em;">Preferred (one contrib PR)</div>
+        <div class="code-block" style="font-size:clamp(0.55rem,0.85vw,0.75rem);"><span class="code-key">from_context</span>: <span class="code-val">tags.env</span>
+
+<span class="code-comment"># attraction.go gets tags.* handler</span>
+<span class="code-comment"># reads tagsconsumer.FromContext(ctx)</span>
+<span class="code-comment"># clean separation of concerns</span></div>
+      </div>
+    </div>
+    <div class="card reveal reveal-delay-4" style="margin-top:var(--element-gap);">
+      <div style="font-weight:600;font-size:var(--body-size);margin-bottom:0.4em;color:var(--white);">Blocked on</div>
+      <ul class="bullets" style="font-size:var(--small-size);">
+        <li>Field name agreement upstream — is <span class="cyan">tags</span> the right name?</li>
+        <li>One PR to <code style="font-family:'JetBrains Mono',monospace;">opentelemetry-collector-contrib</code>: add <code style="font-family:'JetBrains Mono',monospace;">tags.*</code> prefix in <code style="font-family:'JetBrains Mono',monospace;">attraction.go:getAttributeValueFromContext</code></li>
+        <li>Both mechanisms coexist — migration is non-breaking</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SLIDE 9: SUMMARY ===== -->
+<section class="slide" id="slide-9">
+  <div class="orb" style="width:400px;height:400px;background:rgba(0,229,255,0.07);top:-80px;right:-80px;"></div>
+  <div class="orb" style="width:250px;height:250px;background:rgba(255,45,120,0.06);bottom:-40px;left:-40px;"></div>
+  <div class="slide-content" style="align-items:flex-start;">
+    <div class="slide-num reveal">08 · SUMMARY</div>
+    <h2 class="reveal reveal-delay-1">What Was Built</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--element-gap);margin-bottom:var(--element-gap);">
+      <div class="card reveal reveal-delay-2">
+        <div style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:var(--small-size);margin-bottom:0.4em;">NEW</div>
+        <ul class="bullets" style="font-size:var(--small-size);">
+          <li><code style="font-family:'JetBrains Mono',monospace;">consumer/tagsconsumer</code> — context injection wrapper</li>
+          <li>Dual storage: <code style="font-family:'JetBrains Mono',monospace;">tagsKey{}</code> + <code style="font-family:'JetBrains Mono',monospace;">client.Info.Metadata</code></li>
+          <li>Zero overhead when no tags configured</li>
+        </ul>
+      </div>
+      <div class="card reveal reveal-delay-3">
+        <div style="color:var(--cyan);font-family:'JetBrains Mono',monospace;font-size:var(--small-size);margin-bottom:0.4em;">MODIFIED</div>
+        <ul class="bullets" style="font-size:var(--small-size);">
+          <li>Config unmarshaling strips <code style="font-family:'JetBrains Mono',monospace;">tags:</code> before factory sees it</li>
+          <li>Tags threaded from YAML → <code style="font-family:'JetBrains Mono',monospace;">ReceiverBuilder</code></li>
+          <li>Builder wraps consumer per-receiver with tags</li>
+        </ul>
+      </div>
+    </div>
+    <div class="card reveal reveal-delay-4" style="background:rgba(0,229,255,0.06);border-color:rgba(0,229,255,0.3);">
+      <div style="display:flex;align-items:center;gap:var(--content-gap);flex-wrap:wrap;">
+        <div>
+          <div style="font-size:var(--small-size);color:var(--muted);margin-bottom:0.2em;">Processor reads tags as:</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:var(--body-size);color:var(--cyan);">from_context: metadata.tags.&lt;key&gt;</div>
+        </div>
+        <div style="color:var(--muted);font-size:var(--h3-size);">→</div>
+        <div>
+          <div style="font-size:var(--small-size);color:var(--muted);margin-bottom:0.2em;">Future (after contrib PR):</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:var(--body-size);color:var(--cyan);">from_context: tags.&lt;key&gt;</div>
+        </div>
+        <div style="color:var(--muted);font-size:var(--h3-size);">→</div>
+        <div>
+          <div style="font-size:var(--small-size);color:var(--muted);margin-bottom:0.2em;">pdata mutation:</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:var(--body-size);color:var(--magenta);">never</div>
+        </div>
+      </div>
+    </div>
+    <p class="reveal reveal-delay-5" style="font-size:var(--small-size);color:var(--muted);margin-top:var(--element-gap);">
+      Branch: <code style="font-family:'JetBrains Mono',monospace;color:var(--white);">settable-context-via-tags</code> · fork: <code style="font-family:'JetBrains Mono',monospace;color:var(--white);">github.com/cjksplunk/opentelemetry-collector</code>
+    </p>
+  </div>
+</section>
+
+
+<script>
+const slides = document.querySelectorAll('.slide');
+const progress = document.getElementById('progress');
+const navDotsContainer = document.getElementById('nav-dots');
+let current = 0;
+
+// Build nav dots
+slides.forEach((_, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'dot' + (i === 0 ? ' active' : '');
+  dot.addEventListener('click', () => goTo(i));
+  navDotsContainer.appendChild(dot);
+});
+
+function updateUI(idx) {
+  current = idx;
+  progress.style.width = ((idx + 1) / slides.length * 100) + '%';
+  document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+}
+
+function goTo(idx) {
+  idx = Math.max(0, Math.min(slides.length - 1, idx));
+  slides[idx].scrollIntoView({ behavior: 'smooth' });
+  updateUI(idx);
+  revealSlide(idx);
+}
+
+function revealSlide(idx) {
+  slides[idx].querySelectorAll('.reveal').forEach(el => el.classList.add('visible'));
+}
+
+// Keyboard navigation
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown' || e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); goTo(current + 1); }
+  if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); goTo(current - 1); }
+});
+
+// Touch / swipe
+let touchY = 0;
+document.addEventListener('touchstart', e => { touchY = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', e => {
+  const dy = touchY - e.changedTouches[0].clientY;
+  if (Math.abs(dy) > 40) goTo(current + (dy > 0 ? 1 : -1));
+}, { passive: true });
+
+// Intersection Observer to track current slide and trigger reveals
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = Array.from(slides).indexOf(entry.target);
+      updateUI(idx);
+      revealSlide(idx);
+    }
+  });
+}, { threshold: 0.5 });
+
+slides.forEach(s => observer.observe(s));
+
+// Init first slide
+revealSlide(0);
+updateUI(0);
+</script>
+</body>
+</html>
